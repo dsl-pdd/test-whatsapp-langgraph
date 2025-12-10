@@ -5,7 +5,6 @@ const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 
 
 const express = require('express');
-const fetch = require('node-fetch');
 const { graph } = require('./langgraphClient');
 
 const app = express();
