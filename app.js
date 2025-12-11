@@ -50,7 +50,7 @@ app.post('/', async (req, res) => {
         });
 
         const result = await agentResponse.json();
-
+        const resultText = JSON.stringify(result, null, 2);
         // Extract last assistant message
         const messages = result.messages || [];
         const lastMessage = messages.reverse().find(m => m.role === 'ai' || m.role === 'assistant');
@@ -67,7 +67,7 @@ app.post('/', async (req, res) => {
                 messaging_product: 'whatsapp',
                 to: userId,
                 type: 'text',
-                text: { body: reply },
+                text: { body: resultText },
             }),
         });
 
