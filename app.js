@@ -33,6 +33,11 @@ app.post('/', async (req, res) => {
 
         const userId = message.from;
         const userText = message.text?.body || '';
+        console.log("---- Incoming WhatsApp message ----");
+        console.log("From:", userId);
+        console.log("Text:", userText);
+        console.log("----------------------------------");
+
 
         // Call agent with thread_id for context
         const agentResponse = await fetch(`${AGENT_URL}/chat`, {
