@@ -5,9 +5,9 @@ const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 
 
 const express = require('express');
-const { graph } = require('./langgraphClient');
 
 const app = express();
+const AGENT_URL = process.env.AGENT_URL || 'https://test-wa-agent.onrender.com';
 app.use(express.json());
 
 const port = process.env.PORT || 3000;
@@ -39,13 +39,22 @@ app.post('/', async (req, res) => {
         const userId = message.from;
         const userText = message.text?.body || '';
 
-        // Call LangGraph Cloud agent
-        const agentResponse = await graph.invoke({
-            input: userText,
-            thread_id: `whatsapp_${userId}`,
+        // Call agent on Render
+        const agentResponse = await fetch(`${AGENT_URL}/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                messages: [{ role: 'user', content: userText }],
+                thread_id: `whatsapp_${userId}`
+            })
         });
 
-        const reply = agentResponse.output_text || "Sorry, I didn't understand that.";
+        const result = await agentResponse.json();
+
+        // Extract the last assistant message from the response
+        const messages = result.messages || [];
+        const lastMessage = messages.filter(m => m.type === 'ai' || m.role === 'assistant').pop();
+        const reply = lastMessage?.content || "Sorry, I didn't understand that.";
 
         // Send reply back to WhatsApp
         await fetch(`https://graph.facebook.com/v21.0/${PHONE_NUMBER_ID}/messages`, {
