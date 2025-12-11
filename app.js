@@ -50,11 +50,14 @@ app.post('/', async (req, res) => {
         });
 
         const result = await agentResponse.json();
-        const resultText = JSON.stringify(result, null, 2);
-        // Extract last assistant message
+        // Extract last AI message
         const messages = result.messages || [];
-        const lastMessage = messages.reverse().find(m => m.role === 'ai' || m.role === 'assistant');
-        const reply = lastMessage?.content || "Sorry, I didn't understand that.";
+        const aiMessages = messages.filter(
+            m => m.type === "ai" || m.role === "assistant"
+        );
+        
+        const lastAI = aiMessages[aiMessages.length - 1];
+        const reply = lastAI?.content || "Sorry, I didn't understand that.";
 
         // Send reply back to WhatsApp
         await fetch(`https://graph.facebook.com/v21.0/${PHONE_NUMBER_ID}/messages`, {
@@ -67,7 +70,7 @@ app.post('/', async (req, res) => {
                 messaging_product: 'whatsapp',
                 to: userId,
                 type: 'text',
-                text: { body: resultText },
+                text: { body: reply },
             }),
         });
 
