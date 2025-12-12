@@ -52,9 +52,9 @@ app.post('/', async (req, res) => {
         const result = await agentResponse.json();
 
         // Extract the last assistant message from the response
-        const messages = result.messages || [];
-        const lastMessage = messages.filter(m => m.type === 'ai' || m.role === 'assistant').pop();
-        const reply = lastMessage?.content || "Sorry, I didn't understand that.";
+        const reply = result.messages || "sorry i didnt understand that from webhook";
+        // const lastMessage = messages.filter(m => m.type === 'ai' || m.role === 'assistant').pop();
+        // const reply = lastMessage?.content || "Sorry, I didn't understand that.";
 
         // Send reply back to WhatsApp
         await fetch(`https://graph.facebook.com/v21.0/${PHONE_NUMBER_ID}/messages`, {
