@@ -1,13 +1,12 @@
 require('dotenv').config();
+const express = require('express');
+
 const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
-
-
-const express = require('express');
+const AGENT_URL = process.env.AGENT_URL || 'https://test-wa-agent.onrender.com';
 
 const app = express();
-const AGENT_URL = process.env.AGENT_URL || 'https://test-wa-agent.onrender.com';
 app.use(express.json());
 
 const port = process.env.PORT || 3000;
@@ -26,10 +25,6 @@ app.get('/', (req, res) => {
 // POST route for incoming messages
 app.post('/', async (req, res) => {
     try {
-        const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
-        console.log(`\nWebhook received ${timestamp}\n`);
-        console.log(JSON.stringify(req.body, null, 2));
-
         const entry = req.body.entry?.[0];
         const change = entry?.changes?.[0]?.value;
         const message = change?.messages?.[0];
@@ -38,8 +33,13 @@ app.post('/', async (req, res) => {
 
         const userId = message.from;
         const userText = message.text?.body || '';
+        console.log("---- Incoming WhatsApp message ----");
+        console.log("From:", userId);
+        console.log("Text:", userText);
+        console.log("----------------------------------");
 
-        // Call agent on Render
+
+        // Call agent with thread_id for context
         const agentResponse = await fetch(`${AGENT_URL}/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
