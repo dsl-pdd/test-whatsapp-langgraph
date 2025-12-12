@@ -44,17 +44,15 @@ app.post('/', async (req, res) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                messages: [{ role: 'user', content: userText }],
+                messages: userText,
                 thread_id: `whatsapp_${userId}`
             })
         });
 
         const result = await agentResponse.json();
 
-        // Extract the last assistant message from the response
-        const reply = result.messages || "sorry i didnt understand that from webhook";
-        // const lastMessage = messages.filter(m => m.type === 'ai' || m.role === 'assistant').pop();
-        // const reply = lastMessage?.content || "Sorry, I didn't understand that.";
+        // Extract the message from the response
+        const reply = result.message || "sorry i didnt understand that from webhook";
 
         // Send reply back to WhatsApp
         await fetch(`https://graph.facebook.com/v21.0/${PHONE_NUMBER_ID}/messages`, {
